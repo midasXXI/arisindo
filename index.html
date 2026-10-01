@@ -1,564 +1,113 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arisan Online Premium | Sistem Putar Otomatis</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#6366f1',
-                        secondary: '#ec4899',
-                        accent: '#10b981',
-                        dark: '#1e1b4b',
-                        gold: '#f59e0b',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        display: ['Poppins', 'sans-serif'],
-                    },
-                },
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .glass {
-                background: rgba(255, 255, 255, 0.08);
-                backdrop-filter: blur(16px);
-                border: 1px solid rgba(255, 255, 255, 0.12);
-            }
-            .wheel-shadow {
-                box-shadow: 0 0 40px rgba(99, 102, 241, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.1);
-            }
-            .text-shadow {
-                text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            }
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Koleksi Film — TMDB + Abyss</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
+    body { background: #0f172a; color: #f1f5f9; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+    h1 { text-align: center; color: #38bdf8; margin-bottom: 2rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
+    .kartu { background: #1e293b; border-radius: 12px; overflow: hidden; transition: transform .2s; cursor: pointer; }
+    .kartu:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(56,189,248,.2); }
+    .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #334155; }
+    .info { padding: 1rem; }
+    .info h3 { font-size: 1rem; margin-bottom: .3rem; color: #e0f2fe; }
+    .info p { font-size: .85rem; color: #94a3b8; }
+    .tag { display: inline-block; background: #0ea5e9; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; margin: .25rem .25rem 0 0; }
+    .tag.hd { background: #eab308; color: #000; }
+    .tag.fhd { background: #22c55e; color: #000; }
+    .tag.mhd { background: #6366f1; }
+    .tidak-ada { color: #f87171; font-size: .8rem; margin-top: .5rem; }
+    .pemutar { position: fixed; inset: 0; background: rgba(0,0,0,.9); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 2rem; }
+    .pemutar video { max-width: 100%; max-height: 80vh; border-radius: 8px; }
+    .tutup { position: absolute; top: 1rem; right: 1.5rem; font-size: 2rem; cursor: pointer; color: white; }
+    .loading { text-align: center; padding: 3rem; color: #94a3b8; }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-950 via-purple-900 to-pink-900 min-h-screen text-white font-sans">
-    <!-- Navbar -->
-    <nav class="fixed top-0 left-0 w-full z-50 glass">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="#" class="font-display font-bold text-xl text-white flex items-center gap-2">
-                <span class="text-gold text-2xl">🎡</span>
-                <span class="hidden sm:inline">Arisan<span class="text-secondary">Premium</span></span>
-            </a>
-            
-            <!-- Menu Button: Burger / X -->
-            <button id="menuToggle" class="text-white text-2xl focus:outline-none transition-all duration-300">
-                <i id="menuIcon" class="fa fa-bars"></i>
-            </button>
-        </div>
-        
-        <!-- Menu Dropdown -->
-        <div id="mobileMenu" class="absolute w-full glass transition-all duration-300 transform -translate-y-full opacity-0 invisible">
-            <div class="container mx-auto px-4 py-4 space-y-3">
-                <a href="#daftar" class="block py-2 px-4 rounded-lg hover:bg-white/10 transition-colors">📝 Daftar Anggota</a>
-                <a href="#roda" class="block py-2 px-4 rounded-lg hover:bg-white/10 transition-colors">🎡 Roda Putar</a>
-                <a href="#kelola" class="block py-2 px-4 rounded-lg hover:bg-white/10 transition-colors">⚙️ Kelola Data</a>
-                <a href="#riwayat" class="block py-2 px-4 rounded-lg hover:bg-white/10 transition-colors">📜 Riwayat</a>
-                <a href="#aturan" class="block py-2 px-4 rounded-lg hover:bg-white/10 transition-colors">📋 Aturan Sistem</a>
+<body>
+  <h1>🎬 Koleksi Film</h1>
+  <div id="daftar" class="grid"></div>
+  <div id="pemutar" class="pemutar" style="display:none;">
+    <span class="tutup" onclick="tutupPemutar()">&times;</span>
+    <video id="video" controls autoplay></video>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="api.js"></script>
+  <script>
+    async function mulai() {
+      const wadah = document.getElementById("daftar");
+      wadah.innerHTML = `<p class="loading">Sedang memuat daftar film...</p>`;
+
+      try {
+        const dataAbyss = await getResources();
+        wadah.innerHTML = "";
+
+        if (!dataAbyss.items.length) {
+          wadah.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#94a3b8;">Belum ada berkas</p>`;
+          return;
+        }
+
+        for (const berkas of dataAbyss.items) {
+          const tmdbId = ambilIdTMDB(berkas.name);
+          let film = null;
+
+          if (tmdbId) {
+            try {
+              film = await getTMDBFilm(tmdbId);
+            } catch {}
+          }
+
+          const kartu = document.createElement("div");
+          kartu.className = "kartu";
+          
+          // Bisa diputar kalau ada ID TMDB & cocok
+          const bisaPutar = !!film;
+          if (bisaPutar) {
+            kartu.onclick = () => bukaPemutar(berkas.id, berkas.name);
+          }
+
+          kartu.innerHTML = `
+            <img 
+              src="${film ? CONFIG.TMDB_IMG + film.poster_path : ''}" 
+              alt="${film?.title || berkas.name}"
+              class="poster"
+              loading="lazy"
+            >
+            <div class="info">
+              <h3>${film?.title || berkas.name.replace(/^\d+\s*/, "")}</h3>
+              <p>${film?.release_date?.slice(0,4) || "-"} • ${(berkas.size/1024**3).toFixed(2)} GB</p>
+              ${berkas.resolutions?.map(r => `<span class="tag ${r.toLowerCase()}">${r}</span>`).join("") || ""}
+              ${!bisaPutar ? `<span class="tidak-ada">ID TMDB tidak cocok / tidak ditemukan</span>` : `<span style="color:#4ade80;font-size:.8rem">✅ Siap putar</span>`}
             </div>
-        </div>
-    </nav>
-
-    <!-- Spasi Navbar -->
-    <div class="h-16"></div>
-
-    <main class="container mx-auto px-4 py-8 max-w-6xl">
-        <!-- Judul Utama -->
-        <div class="text-center mb-12">
-            <h1 class="font-display font-extrabold text-[clamp(1.8rem,5vw,3rem)] mb-3 text-shadow">
-                Arisan Online <span class="text-gold">Premium</span>
-            </h1>
-            <p class="text-lg text-purple-200 max-w-2xl mx-auto">Sistem pemilihan penerima otomatis — transparan, adil, dan terpercaya</p>
-            <div class="mt-4 inline-flex items-center gap-2 glass px-4 py-2 rounded-full">
-                <span class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
-                <span class="text-sm">Aktif — <span id="totalAnggota">0</span> Anggota</span>
-            </div>
-        </div>
-
-        <!-- Bagian 1: Pendaftaran -->
-        <section id="daftar" class="glass rounded-3xl p-6 md:p-8 mb-10 transform hover:scale-[1.01] transition-transform">
-            <h2 class="font-display font-bold text-2xl mb-6 flex items-center gap-3">
-                <span class="bg-primary/30 p-2 rounded-xl">📝</span>
-                Pendaftaran Anggota Baru
-            </h2>
-            
-            <form id="formDaftar" class="space-y-4">
-                <div class="grid md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-purple-200 mb-2">Nama Lengkap</label>
-                        <input type="text" id="namaLengkap" placeholder="Contoh: Budi Santoso" required
-                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-purple-200 mb-2">Nomor Telepon</label>
-                        <input type="tel" id="noTelp" placeholder="Contoh: 081234567890" required
-                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-purple-200 mb-2">Nomor Rekening</label>
-                        <input type="text" id="noRekening" placeholder="Sesuai nama peserta" required
-                            class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all">
-                    </div>
-                </div>
-                <button type="submit" 
-                    class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20">
-                    ✅ Daftar & Dapatkan Kode Unik
-                </button>
-            </form>
-
-            <!-- Hasil Kode Unik -->
-            <div id="hasilKode" class="hidden mt-6 p-4 rounded-xl bg-accent/20 border border-accent/30">
-                <p class="text-sm text-accent-200 mb-1">✅ Pendaftaran Berhasil! Simpan Kode Unik Anda:</p>
-                <p class="text-2xl font-bold text-gold font-mono" id="kodeUnikTampil"></p>
-                <p class="text-xs text-gray-300 mt-2">Simpan baik-baik — untuk edit/hapus data di kemudian hari</p>
-            </div>
-        </section>
-
-        <!-- Bagian 2: Roda Putar -->
-        <section id="roda" class="glass rounded-3xl p-6 md:p-8 mb-10">
-            <h2 class="font-display font-bold text-2xl mb-6 text-center flex items-center justify-center gap-3">
-                <span class="bg-gold/30 p-2 rounded-xl">🎡</span>
-                Roda Putar Arisan
-            </h2>
-
-            <div class="flex flex-col items-center">
-                <div class="relative w-80 h-80 md:w-96 md:h-96 mb-6">
-                    <!-- Penunjuk -->
-                    <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10">
-                        <div class="w-0 h-0 border-l-[20px] border-r-[20px] border-t-[40px] border-l-transparent border-r-transparent border-t-gold drop-shadow-lg"></div>
-                    </div>
-                    
-                    <!-- Roda -->
-                    <div id="rodaPutar" class="w-full h-full rounded-full bg-white/10 wheel-shadow flex items-center justify-center transition-transform duration-[4000ms] ease-out">
-                        <div class="text-center p-6">
-                            <p class="text-purple-200 text-lg" id="rodaTeks">Tambahkan minimal 10 anggota<br>untuk mulai memutar</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tombol Putar -->
-                <button id="tombolPutar" disabled
-                    class="w-full max-w-xs py-4 rounded-xl font-bold text-lg bg-gray-600 cursor-not-allowed opacity-50 transition-all">
-                    🔒 Belum Siap
-                </button>
-
-                <!-- Hasil Pemenang -->
-                <div id="kotakPemenang" class="mt-8 w-full max-w-lg hidden">
-                    <p class="text-center text-purple-200 mb-3">🎉 Pemenang Putaran Ini:</p>
-                    <div class="rounded-2xl bg-gold/20 border-2 border-gold/50 p-6 text-center animate-pulse">
-                        <p class="text-2xl md:text-3xl font-bold text-gold font-display" id="namaPemenang"></p>
-                        <p class="text-sm text-gray-300 mt-2">Kode: <span id="kodePemenang" class="font-mono"></span></p>
-                        <div class="mt-4 pt-4 border-t border-white/10">
-                            <p class="text-sm text-purple-200">Dana Diterima: <span class="text-accent font-bold">70%</span></p>
-                            <p class="text-xs text-gray-400 mt-1">Sisa 30% untuk operasional situs</p>
-                        </div>
-                    </div>
-                    <button onclick="resetRoda()" class="mt-4 w-full py-3 rounded-xl bg-primary/30 hover:bg-primary/50 transition-colors font-medium">
-                        🔄 Putaran Berikutnya
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Bagian 3: Kelola Data -->
-        <section id="kelola" class="glass rounded-3xl p-6 md:p-8 mb-10">
-            <h2 class="font-display font-bold text-2xl mb-6 flex items-center gap-3">
-                <span class="bg-secondary/30 p-2 rounded-xl">⚙️</span>
-                Kelola Data Anggota
-            </h2>
-
-            <p class="text-sm text-purple-200 mb-4">Masukkan Kode Unik untuk mengedit atau menghapus data Anda</p>
-            
-            <div class="flex gap-2 mb-6">
-                <input type="text" id="inputKodeAksi" placeholder="Masukkan Kode Unik..."
-                    class="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-secondary">
-                <button onclick="cariAnggota()" class="px-6 py-3 bg-secondary hover:bg-secondary/80 rounded-xl font-medium transition-colors">
-                    Cari
-                </button>
-            </div>
-
-            <!-- Form Edit -->
-            <div id="formEditContainer" class="hidden p-4 rounded-xl bg-white/5 border border-white/10 space-y-4">
-                <h3 class="font-semibold text-lg">Edit Data Anggota</h3>
-                <div class="grid md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs text-purple-200 mb-1">Nama Lengkap</label>
-                        <input type="text" id="editNama" 
-                            class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-purple-200 mb-1">No. Telepon</label>
-                        <input type="tel" id="editTelp" 
-                            class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-purple-200 mb-1">No. Rekening</label>
-                        <input type="text" id="editRek" 
-                            class="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20">
-                    </div>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="simpanEdit()" class="px-5 py-2 bg-accent hover:bg-accent/80 rounded-lg font-medium">
-                        ✅ Simpan Perubahan
-                    </button>
-                    <button onclick="hapusAnggota()" class="px-5 py-2 bg-red-600/60 hover:bg-red-600 rounded-lg font-medium">
-                        🗑️ Hapus Keanggotaan
-                    </button>
-                </div>
-            </div>
-
-            <!-- Daftar Semua Anggota -->
-            <div class="mt-8">
-                <h3 class="font-semibold text-lg mb-3">Daftar Anggota Terdaftar</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-purple-200 border-b border-white/10">
-                                <th class="py-2 px-3">No</th>
-                                <th class="py-2 px-3">Nama</th>
-                                <th class="py-2 px-3">Kode Unik</th>
-                                <th class="py-2 px-3 hidden md:table-cell">Terdaftar</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelAnggota">
-                            <tr>
-                                <td colspan="4" class="py-4 px-3 text-center text-purple-300 italic">Belum ada anggota terdaftar</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- Bagian 4: Riwayat -->
-        <section id="riwayat" class="glass rounded-3xl p-6 md:p-8 mb-10">
-            <h2 class="font-display font-bold text-2xl mb-6 flex items-center gap-3">
-                <span class="bg-accent/30 p-2 rounded-xl">📜</span>
-                Riwayat Pemenang
-            </h2>
-            <ul id="daftarRiwayat" class="space-y-3">
-                <li class="text-purple-300 italic">Belum ada riwayat putaran</li>
-            </ul>
-            <button onclick="bersihkanRiwayat()" class="mt-6 text-sm text-red-300 hover:text-red-200">
-                Bersihkan Semua Riwayat
-            </button>
-        </section>
-
-        <!-- Bagian 5: Aturan -->
-        <section id="aturan" class="glass rounded-3xl p-6 md:p-8">
-            <h2 class="font-display font-bold text-2xl mb-6 flex items-center gap-3">
-                <span class="bg-primary/30 p-2 rounded-xl">📋</span>
-                Aturan Sistem Arisan
-            </h2>
-            <div class="space-y-4 text-purple-100">
-                <div class="p-4 rounded-xl bg-white/5">
-                    <h3 class="font-semibold text-white mb-2">👥 Keanggotaan</h3>
-                    <ul class="list-disc list-inside space-y-1 text-sm">
-                        <li>Minimal 10 peserta untuk memulai putaran</li>
-                        <li>Tidak ada batas maksimal anggota</li>
-                        <li>Data tersimpan aman dan tidak hilang setelah putaran</li>
-                    </ul>
-                </div>
-                <div class="p-4 rounded-xl bg-white/5">
-                    <h3 class="font-semibold text-white mb-2">💰 Pembagian Dana</h3>
-                    <ul class="list-disc list-inside space-y-1 text-sm">
-                        <li><span class="text-accent font-bold">70%</span> diterima oleh pemenang putaran</li>
-                        <li><span class="text-gold font-bold">30%</span> dialokasikan untuk biaya operasional situs</li>
-                    </ul>
-                </div>
-                <div class="p-4 rounded-xl bg-white/5">
-                    <h3 class="font-semibold text-white mb-2">🔑 Kode Unik</h3>
-                    <ul class="list-disc list-inside space-y-1 text-sm">
-                        <li>Dibuat dari gabungan & pengacakan nama + nomor rekening</li>
-                        <li>Jika ada kesamaan, ditambahkan nomor dari telepon</li>
-                        <li>Digunakan untuk mengedit atau menghapus data</li>
-                        <li>Tetap sama selama masih menjadi anggota</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="mt-12 py-6 text-center text-sm text-purple-300">
-        <p>© 2026 Arisan Premium — Sistem Terpercaya & Transparan</p>
-    </footer>
-
-    <script>
-        // Data Utama
-        let anggota = [];
-        let riwayat = [];
-        let sedangBerputar = false;
-        let putaranSudahReset = true;
-
-        // Elemen DOM
-        const menuToggle = document.getElementById('menuToggle');
-        const menuIcon = document.getElementById('menuIcon');
-        const mobileMenu = document.getElementById('mobileMenu');
-        let menuTerbuka = false;
-
-        // Animasi Menu Burger → X
-        menuToggle.addEventListener('click', () => {
-            menuTerbuka = !menuTerbuka;
-            if (menuTerbuka) {
-                menuIcon.classList.remove('fa-bars');
-                menuIcon.classList.add('fa-times');
-                mobileMenu.classList.remove('-translate-y-full', 'opacity-0', 'invisible');
-            } else {
-                menuIcon.classList.remove('fa-times');
-                menuIcon.classList.add('fa-bars');
-                mobileMenu.classList.add('-translate-y-full', 'opacity-0', 'invisible');
-            }
-        });
-
-        // Tutup menu saat klik link
-        document.querySelectorAll('#mobileMenu a').forEach(link => {
-            link.addEventListener('click', () => {
-                menuTerbuka = false;
-                menuIcon.classList.remove('fa-times');
-                menuIcon.classList.add('fa-bars');
-                mobileMenu.classList.add('-translate-y-full', 'opacity-0', 'invisible');
-            });
-        });
-
-        // Fungsi Acak Karakter untuk Kode Unik
-        function acakTeks(teks) {
-            let arr = teks.split('');
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr.join('');
+          `;
+          wadah.appendChild(kartu);
         }
+      } catch (err) {
+        wadah.innerHTML = `<p style="color:#f87171;text-align:center;">Gagal muat: ${err.message}</p>`;
+      }
+    }
 
-        // Buat Kode Unik
-        function buatKodeUnik(nama, noRek, noTelp) {
-            const bagianNama = nama.replace(/\s+/g, '').substring(0, 3).toUpperCase();
-            const bagianRek = noRek.replace(/\D/g, '').slice(-4);
-            let kodeDasar = bagianNama + bagianRek;
-            let kodeAcak = acakTeks(kodeDasar);
-            
-            // Cek duplikasi
-            const adaSama = anggota.some(a => a.kodeUnik === kodeAcak);
-            if (adaSama) {
-                const bagianTelp = noTelp.replace(/\D/g, '').slice(-3);
-                kodeDasar = bagianNama + bagianRek + bagianTelp;
-                kodeAcak = acakTeks(kodeDasar);
-            }
-            return kodeAcak.toLowerCase();
-        }
+    function bukaPemutar(fileId, nama) {
+      // Buat tautan unduhan/tonton dari Abyss — sesuaikan pola kalau beda
+      const sumberVideo = `https://up.abyss.to/${CONFIG.API_KEY_ABYSS}/${fileId}`;
+      const pemutar = document.getElementById("pemutar");
+      const video = document.getElementById("video");
+      video.src = sumberVideo;
+      pemutar.style.display = "flex";
+      document.title = nama;
+    }
 
-        // Simpan & Muat Data
-        function simpanData() {
-            localStorage.setItem('arisan_anggota', JSON.stringify(anggota));
-            localStorage.setItem('arisan_riwayat', JSON.stringify(riwayat));
-        }
+    function tutupPemutar() {
+      const video = document.getElementById("video");
+      video.pause();
+      video.src = "";
+      document.getElementById("pemutar").style.display = "none";
+    }
 
-        function muatData() {
-            const dataAnggota = localStorage.getItem('arisan_anggota');
-            const dataRiwayat = localStorage.getItem('arisan_riwayat');
-            if (dataAnggota) anggota = JSON.parse(dataAnggota);
-            if (dataRiwayat) riwayat = JSON.parse(dataRiwayat);
-            perbaruiTampilan();
-        }
-
-        // Form Daftar
-        document.getElementById('formDaftar').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const nama = document.getElementById('namaLengkap').value.trim();
-            const telp = document.getElementById('noTelp').value.trim();
-            const rek = document.getElementById('noRekening').value.trim();
-
-            const kodeUnik = buatKodeUnik(nama, rek, telp);
-            
-            anggota.push({
-                id: Date.now(),
-                nama,
-                telp,
-                rek,
-                kodeUnik,
-                tanggal: new Date().toLocaleDateString('id-ID')
-            });
-
-            simpanData();
-            perbaruiTampilan();
-
-            // Tampilkan kode unik
-            const kotak = document.getElementById('hasilKode');
-            kotak.classList.remove('hidden');
-            document.getElementById('kodeUnikTampil').textContent = kodeUnik;
-            
-            // Reset form
-            document.getElementById('formDaftar').reset();
-            
-            // Sembunyikan setelah 10 detik
-            setTimeout(() => kotak.classList.add('hidden'), 10000);
-        });
-
-        // Perbarui Tampilan
-        function perbaruiTampilan() {
-            document.getElementById('totalAnggota').textContent = anggota.length;
-            
-            // Tabel anggota
-            const tbody = document.getElementById('tabelAnggota');
-            if (anggota.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="py-4 px-3 text-center text-purple-300 italic">Belum ada anggota terdaftar</td></tr>';
-            } else {
-                tbody.innerHTML = anggota.map((a, i) => `
-                    <tr class="border-b border-white/5 hover:bg-white/5">
-                        <td class="py-2 px-3">${i+1}</td>
-                        <td class="py-2 px-3 font-medium">${a.nama}</td>
-                        <td class="py-2 px-3 font-mono text-gold text-sm">${a.kodeUnik}</td>
-                        <td class="py-2 px-3 text-sm text-gray-400 hidden md:table-cell">${a.tanggal}</td>
-                    </tr>
-                `).join('');
-            }
-
-            // Tombol Putar
-            const tombolPutar = document.getElementById('tombolPutar');
-            if (anggota.length >= 10 && !sedangBerputar) {
-                tombolPutar.disabled = false;
-                tombolPutar.className = 'w-full max-w-xs py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-500 hover:to-gold transition-all shadow-lg shadow-gold/20 transform hover:scale-[1.02] active:scale-[0.98]';
-                tombolPutar.textContent = '🎡 MULAI PUTAR';
-            } else if (sedangBerputar) {
-                tombolPutar.disabled = true;
-                tombolPutar.className = 'w-full max-w-xs py-4 rounded-xl font-bold text-lg bg-gray-600 cursor-not-allowed transition-all animate-pulse';
-                tombolPutar.textContent = '⏳ Sedang Berputar...';
-            } else {
-                tombolPutar.disabled = true;
-                tombolPutar.className = 'w-full max-w-xs py-4 rounded-xl font-bold text-lg bg-gray-600 cursor-not-allowed opacity-50 transition-all';
-                tombolPutar.textContent = `🔒 Butuh ${10 - anggota.length} anggota lagi`;
-            }
-
-            // Teks roda
-            const rodaTeks = document.getElementById('rodaTeks');
-            if (anggota.length >= 10) {
-                rodaTeks.innerHTML = `${anggota.length} Anggota Siap<br>Klik tombol di bawah!`;
-            } else {
-                rodaTeks.innerHTML = `Tambahkan minimal 10 anggota<br>untuk mulai memutar (${anggota.length}/10)`;
-            }
-
-            // Riwayat
-            const daftarRiwayat = document.getElementById('daftarRiwayat');
-            if (riwayat.length === 0) {
-                daftarRiwayat.innerHTML = '<li class="text-purple-300 italic">Belum ada riwayat putaran</li>';
-            } else {
-                daftarRiwayat.innerHTML = riwayat.map((r, i) => `
-                    <li class="p-3 rounded-xl bg-white/5 flex justify-between items-center">
-                        <div>
-                            <p class="font-semibold">${r.nama}</p>
-                            <p class="text-xs text-gray-400">${r.kodeUnik}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm text-gold">Putaran ke-${riwayat.length - i}</p>
-                            <p class="text-xs text-gray-400">${r.tanggal}</p>
-                        </div>
-                    </li>
-                `).join('');
-            }
-        }
-
-        // Putar Roda
-        document.getElementById('tombolPutar').addEventListener('click', function() {
-            if (anggota.length < 10 || sedangBerputar) return;
-            
-            sedangBerputar = true;
-            perbaruiTampilan();
-
-            const roda = document.getElementById('rodaPutar');
-            const pemenang = anggota[Math.floor(Math.random() * anggota.length)];
-            const putaranDerajat = 360 * 8 + Math.floor(Math.random() * 360); // 8 putaran penuh + acak
-            
-            roda.style.transform = `rotate(${putaranDerajat}deg)`;
-
-            setTimeout(() => {
-                // Tampilkan pemenang
-                document.getElementById('namaPemenang').textContent = pemenang.nama;
-                document.getElementById('kodePemenang').textContent = pemenang.kodeUnik;
-                document.getElementById('kotakPemenang').classList.remove('hidden');
-
-                // Simpan ke riwayat
-                riwayat.unshift({
-                    nama: pemenang.nama,
-                    kodeUnik: pemenang.kodeUnik,
-                    tanggal: new Date().toLocaleString('id-ID')
-                });
-                simpanData();
-
-                sedangBerputar = false;
-                perbaruiTampilan();
-            }, 4000);
-        });
-
-        // Reset Roda untuk Putaran Berikutnya
-        function resetRoda() {
-            const roda = document.getElementById('rodaPutar');
-            roda.style.transform = 'rotate(0deg)';
-            document.getElementById('kotakPemenang').classList.add('hidden');
-            perbaruiTampilan();
-        }
-
-        // Cari Anggota untuk Edit/Hapus
-        let indeksDitemukan = -1;
-        function cariAnggota() {
-            const kode = document.getElementById('inputKodeAksi').value.trim().toLowerCase();
-            indeksDitemukan = anggota.findIndex(a => a.kodeUnik === kode);
-            
-            if (indeksDitemukan === -1) {
-                alert('Kode Unik tidak ditemukan!');
-                document.getElementById('formEditContainer').classList.add('hidden');
-                return;
-            }
-
-            const data = anggota[indeksDitemukan];
-            document.getElementById('editNama').value = data.nama;
-            document.getElementById('editTelp').value = data.telp;
-            document.getElementById('editRek').value = data.rek;
-            document.getElementById('formEditContainer').classList.remove('hidden');
-        }
-
-        function simpanEdit() {
-            if (indeksDitemukan === -1) return;
-            anggota[indeksDitemukan].nama = document.getElementById('editNama').value.trim();
-            anggota[indeksDitemukan].telp = document.getElementById('editTelp').value.trim();
-            anggota[indeksDitemukan].rek = document.getElementById('editRek').value.trim();
-            simpanData();
-            perbaruiTampilan();
-            alert('Data berhasil diperbarui!');
-        }
-
-        function hapusAnggota() {
-            if (!confirm('Yakin ingin menghapus keanggotaan ini? Tindakan ini tidak bisa dibatalkan!')) return;
-            anggota.splice(indeksDitemukan, 1);
-            simpanData();
-            perbaruiTampilan();
-            document.getElementById('formEditContainer').classList.add('hidden');
-            document.getElementById('inputKodeAksi').value = '';
-            alert('Anggota telah dihapus!');
-        }
-
-        function bersihkanRiwayat() {
-            if (!confirm('Yakin menghapus semua riwayat?')) return;
-            riwayat = [];
-            simpanData();
-            perbaruiTampilan();
-        }
-
-        // Muat saat halaman dibuka
-        document.addEventListener('DOMContentLoaded', muatData);
-    </script>
+    mulai();
+  </script>
 </body>
 </html>
