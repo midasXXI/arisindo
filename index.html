@@ -3,139 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Koleksi Film — TMDB + Abyss</title>
+  <title>Koleksi Film</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
     body { background: #0f172a; color: #f1f5f9; padding: 2rem; max-width: 1200px; margin: 0 auto; }
     h1 { text-align: center; color: #38bdf8; margin-bottom: 2rem; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
-    .kartu { background: #1e293b; border-radius: 12px; overflow: hidden; transition: transform .2s; }
-    .kartu:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(56,189,248,.2); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; }
+    .kartu { background: #1e293b; border-radius: 12px; overflow: hidden; transition: transform .2s; cursor: pointer; }
+    .kartu:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(56,189,248,.25); }
     .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #334155; }
     .info { padding: 1rem; }
-    .info h3 { font-size: 1rem; margin-bottom: .3rem; color: #e0f2fe; }
-    .info p { font-size: .85rem; color: #94a3b8; }
-    .tag { display: inline-block; background: #0ea5e9; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; margin: .25rem .25rem 0 0; }
-    .tag.hd { background: #eab308; color: #000; }
-    .tag.fhd { background: #22c55e; color: #000; }
-    .tag.mhd { background: #6366f1; }
-    .tidak-ada { color: #f87171; font-size: .8rem; margin-top: .5rem; }
-    .bisa-putar { color: #4ade80; font-size: .8rem; margin-top: .5rem; cursor: pointer; }
-    .pemutar { position: fixed; inset: 0; background: rgba(0,0,0,.9); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 2rem; display: none; }
-    .pemutar video { max-width: 100%; max-height: 80vh; border-radius: 8px; }
-    .tutup { position: absolute; top: 1rem; right: 1.5rem; font-size: 2rem; cursor: pointer; color: white; }
-    .loading { text-align: center; padding: 3rem; color: #94a3b8; }
+    .info h3 { font-size: 0.95rem; margin-bottom: 0.3rem; color: #e0f2fe; line-height: 1.3; }
+    .info p { font-size: 0.8rem; color: #94a3b8; }
+    .status { margin-top: 0.5rem; font-size: 0.75rem; }
+    .ada { color: #4ade80; }
+    .tidak { color: #f87171; }
+    .loading { text-align: center; padding: 4rem; color: #94a3b8; grid-column: 1 / -1; }
   </style>
 </head>
 <body>
   <h1>🎬 Koleksi Film</h1>
-  <div id="daftar" class="grid"></div>
-  <div id="pemutar" class="pemutar">
-    <span class="tutup" onclick="tutupPemutar()">&times;</span>
-    <video id="video" controls autoplay></video>
-  </div>
+  <div id="gridFilm" class="grid"></div>
 
   <script>
-    // === KONFIGURASI ===
-    const CONFIG = {
-      API_BASE: "https://api.abyss.to",
-      API_KEY_ABYSS: "22eef122604d349b3de00257ae5ed34b",
-      API_KEY_TMDB: "c000d7b8b0f5ee16b98b6103009745d8",
-      TMDB_IMG: "https://image.tmdb.org/t/p/w342"
-    };
+    // === KONFIG ===
+    const API_KEY_ABYSS = "22eef122604d349b3de00257ae5ed34b";
+    const API_KEY_TMDB = "c000d7b8b0f5ee16b98b6103009745d8";
+    const TMDB_IMG = "https://image.tmdb.org/t/p/w342";
 
-    // === FUNGSI AMBIL DATA ===
-    async function getResources() {
-      const res = await fetch(`${CONFIG.API_BASE}/v1/resources?key=${CONFIG.API_KEY_ABYSS}`);
-      if (!res.ok) throw new Error(`Abyss Error: ${res.status}`);
-      return res.json();
+    // === FUNGSI ===
+    async function ambilDaftarAbyss() {
+      const res = await fetch(`https://api.abyss.to/v1/resources?key=${API_KEY_ABYSS}`);
+      if (!res.ok) throw new Error(`Abyss: ${res.status}`);
+      const data = await res.json();
+      // Peta: tmdbId → info berkas
+      const peta = {};
+      data.items.forEach(berkas => {
+        const cocok = berkas.name.match(/^(\d+)\s+/);
+        if (cocok) peta[cocok[1]] = berkas;
+      });
+      return peta;
     }
 
-    async function getTMDBFilm(tmdbId) {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${CONFIG.API_KEY_TMDB}&language=id-ID`
-      );
+    async function ambilInfoTMDB(tmdbId) {
+      const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY_TMDB}&language=id-ID`);
       if (!res.ok) return null;
       return res.json();
     }
 
-    function ambilIdTMDB(nama) {
-      const cocok = nama.match(/^(\d+)\s+/);
-      return cocok ? cocok[1] : null;
-    }
-
-    function bukaPemutar(fileId, nama) {
-      // Sesuaikan pola tautan ini kalau perlu
-      const sumberVideo = `https://api.abyss.to/v1/files/${fileId}/play`;
-      const pemutar = document.getElementById("pemutar");
-      const video = document.getElementById("video");
-      video.src = sumberVideo;
-      pemutar.style.display = "flex";
-      document.title = nama;
-    }
-
-    function tutupPemutar() {
-      const video = document.getElementById("video");
-      video.pause();
-      video.src = "";
-      document.getElementById("pemutar").style.display = "none";
-    }
-
-    // === MULAI MUAT DATA ===
+    // === TAMPILKAN ===
     async function mulai() {
-      const wadah = document.getElementById("daftar");
-      wadah.innerHTML = `<p class="loading">Sedang memuat daftar film...</p>`;
+      const wadah = document.getElementById("gridFilm");
+      wadah.innerHTML = `<p class="loading">🔄 Memuat daftar film...</p>`;
 
       try {
-        const dataAbyss = await getResources();
+        const petaAbyss = await ambilDaftarAbyss();
         wadah.innerHTML = "";
 
-        if (!dataAbyss.items.length) {
-          wadah.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#94a3b8;">Belum ada berkas</p>`;
+        if (!Object.keys(petaAbyss).length) {
+          wadah.innerHTML = `<p class="loading">Belum ada berkas di akun Abyss</p>`;
           return;
         }
 
-        for (const berkas of dataAbyss.items) {
-          const tmdbId = ambilIdTMDB(berkas.name);
-          let film = null;
-
-          if (tmdbId) {
-            film = await getTMDBFilm(tmdbId);
-          }
-
+        for (const [tmdbId, berkas] of Object.entries(petaAbyss)) {
+          const film = await ambilInfoTMDB(tmdbId);
           const kartu = document.createElement("div");
           kartu.className = "kartu";
-
-          const bisaPutar = !!film;
-          if (bisaPutar) {
-            kartu.onclick = () => bukaPemutar(berkas.id, berkas.name);
-          }
+          kartu.onclick = () => window.location.href = `watch.html?tmdb=${tmdbId}&file=${berkas.id}&judul=${encodeURIComponent(film?.title || berkas.name)}`;
 
           kartu.innerHTML = `
             <img 
-              src="${film ? CONFIG.TMDB_IMG + film.poster_path : ''}" 
+              src="${film ? TMDB_IMG + film.poster_path : ''}" 
               alt="${film?.title || berkas.name}"
               class="poster"
               loading="lazy"
-              onerror="this.src='https://via.placeholder.com/300x450/1e293b/94a3b8?text=${encodeURIComponent('Tidak+Ada+Poster')}'"
+              onerror="this.src='https://via.placeholder.com/300x450/1e293b/94a3b8?text=${encodeURIComponent(tmdbId + '+-+Tidak+Ada+Poster')}'"
             >
             <div class="info">
               <h3>${film?.title || berkas.name.replace(/^\d+\s*/, "")}</h3>
               <p>${film?.release_date?.slice(0,4) || "-"} • ${(berkas.size/1024**3).toFixed(2)} GB</p>
-              ${berkas.resolutions?.map(r => `<span class="tag ${r.toLowerCase()}">${r}</span>`).join("") || ""}
-              ${bisaPutar 
-                ? `<span class="bisa-putar">✅ Klik untuk tonton</span>` 
-                : `<span class="tidak-ada">❌ ID TMDB tidak ditemukan</span>`}
+              <div class="status ada">✅ Tersedia di Abyss</div>
             </div>
           `;
           wadah.appendChild(kartu);
         }
       } catch (err) {
-        wadah.innerHTML = `<p style="color:#f87171;text-align:center;">Gagal muat: ${err.message}</p>`;
+        wadah.innerHTML = `<p class="loading" style="color:#f87171">❌ Gagal muat: ${err.message}</p>`;
       }
     }
 
-    // Jalankan langsung
     mulai();
   </script>
 </body>
