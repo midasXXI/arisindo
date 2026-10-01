@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Koleksi Film — Otomatis TMDB</title>
+  <title>Koleksi Film — TMDB</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
     body { background: #030712; color: #f8fafc; padding: 2rem; max-width: 1200px; margin: 0 auto; }
@@ -19,37 +19,28 @@
     .bintang { color: #facc15; }
     .loading { text-align: center; padding: 5rem 2rem; color: #94a3b8; grid-column: 1 / -1; }
     .error { color: #f87171; }
-    .kosong { color: #64748b; text-align: center; padding: 3rem; grid-column: 1 / -1; }
-    .tag-id { font-size: .7rem; color: #6366f1; margin-top: .3rem; }
   </style>
 </head>
 <body>
-  <h1>🎬 Koleksi Film — Otomatis dari Abyss → TMDB</h1>
+  <h1>🎬 Koleksi Film — TMDB</h1>
   <div id="gridFilm" class="grid"></div>
 
   <script>
-    // === KUNCI SUDAH BENAR ===
-    const API_KEY_ABYSS = "22eef122604d349b3de00257ae5ed34b";
+    // === KUNCI TMDB KAMU SUDAH BENAR ===
     const API_KEY_TMDB = "c000d7b8b0f5ee16b98b6103009745d8";
     const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w342";
-    const CORS_PROXY = "https://corsproxy.io/?";
 
-    // === 1. AMBIL SEMUA BERKAS DARI ABYSS ===
-    async function ambilBerkasDariAbyss() {
-      const url = `${CORS_PROXY}${encodeURIComponent(`https://api.abyss.to/v1/resources?key=${API_KEY_ABYSS}`)}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Abyss: ${res.status}`);
-      return await res.json();
-    }
+    // === DAFTAR ID FILM KAMU ===
+    // Nanti kalau sudah jalan, bisa diganti otomatis baca dari file daftar.json
+    const DAFTAR_FILM = [
+      { tmdbId: "977942", namaFile: "The Uprising 2026.mp4" },
+      { tmdbId: "282035", namaFile: "The Mummy 2017.mp4" },
+      { tmdbId: "1320330", namaFile: "Year 10 2024.mp4" }
+      // Tambah film di sini format: { tmdbId: "xxx", namaFile: "Judul.mp4" }
+    ];
 
-    // === 2. EKSTRAK ID TMDB DARI NAMA BERKAS ===
-    function ambilIdDariNama(nama) {
-      const cocok = nama.match(/^(\d+)\s+/);
-      return cocok ? cocok[1] : null;
-    }
-
-    // === 3. TARIK INFO & POSTER ASLI DARI TMDB ===
-    async function ambilInfoDariTMDB(tmdbId) {
+    // === AMBIL INFO FILM DARI TMDB ===
+    async function ambilInfoTMDB(tmdbId) {
       try {
         const res = await fetch(
           `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY_TMDB}&language=id-ID`
@@ -61,82 +52,63 @@
       }
     }
 
-    // === 4. TAMPILKAN SEMUA OTOMATIS ===
+    // === TAMPILKAN SEMUA ===
     async function mulai() {
       const wadah = document.getElementById("gridFilm");
-      wadah.innerHTML = `<p class="loading">🔄 Membaca berkas dari Abyss...</p>`;
+      wadah.innerHTML = `<p class="loading">🔄 Memuat poster dari TMDB...</p>`;
 
-      try {
-        const dataAbyss = await ambilBerkasDariAbyss();
-        const berkasList = dataAbyss.items || [];
+      const hasil = [];
 
-        if (!berkasList.length) {
-          wadah.innerHTML = `<p class="loading kosong">Belum ada berkas di akun Abyss</p>`;
-          return;
-        }
+      for (const film of DAFTAR_FILM) {
+        const dataTMDB = await ambilInfoTMDB(film.tmdbId);
 
-        wadah.innerHTML = "";
-        let adaYangDitampilkan = false;
-
-        for (const berkas of berkasList) {
-          const tmdbId = ambilIdDariNama(berkas.name);
-          if (!tmdbId) continue; // Lewati yang tidak pakai format ID di depan
-
-          const film = await ambilInfoDariTMDB(tmdbId);
-          adaYangDitampilkan = true;
-
-          const kartu = document.createElement("div");
-          kartu.className = "kartu";
-          
-          if (film) {
-            // ✅ Ditemukan di TMDB — tampilkan POSTER ASLI
-            kartu.onclick = () => {
-              window.location.href = `watch.html?tmdb=${tmdbId}&file=${berkas.id}&judul=${encodeURIComponent(film.title)}`;
-            };
-            kartu.innerHTML = `
+        if (dataTMDB) {
+          // ✅ Ditemukan — tampilkan poster ASLI dari TMDB
+          hasil.push(`
+            <div class="kartu" onclick="bukaFilm('${film.tmdbId}')">
               <img 
-                src="${TMDB_IMG_BASE}${film.poster_path}" 
-                alt="${film.title}"
+                src="${TMDB_IMG_BASE}${dataTMDB.poster_path}" 
+                alt="${dataTMDB.title}"
                 class="poster"
                 loading="lazy"
-                onerror="this.src='https://via.placeholder.com/300x450/0f172a/475569?text=${encodeURIComponent(film.title)}'"
+                onerror="this.src='https://via.placeholder.com/300x450/0f172a/475569?text=${encodeURIComponent(dataTMDB.title)}'"
               >
               <div class="info">
-                <h3>${film.title}</h3>
-                <p>${film.release_date ? film.release_date.slice(0,4) : "-"} • ${(berkas.size/1024**3).toFixed(2)} GB</p>
+                <h3>${dataTMDB.title}</h3>
+                <p>${dataTMDB.release_date ? dataTMDB.release_date.slice(0,4) : "-"} • ${dataTMDB.runtime} menit</p>
                 <div class="skor">
                   <span class="bintang">★</span>
-                  ${film.vote_average?.toFixed(1) || "0.0"}
+                  ${dataTMDB.vote_average?.toFixed(1) || "0.0"}
                 </div>
-                <div class="tag-id">ID TMDB: ${tmdbId}</div>
               </div>
-            `;
-          } else {
-            // ❌ Tidak ditemukan di TMDB
-            kartu.innerHTML = `
+            </div>
+          `);
+        } else {
+          // ❌ Tidak ketemu
+          hasil.push(`
+            <div class="kartu">
               <div style="width:100%;aspect-ratio:2/3;background:#1e293b;display:flex;align-items:center;justify-content:center;color:#64748b;text-align:center;padding:1rem;">
-                ID ${tmdbId}<br>Tidak ditemukan
+                ID ${film.tmdbId}<br>Tidak ditemukan
               </div>
               <div class="info">
-                <h3>${berkas.name.replace(/^\d+\s*/, "")}</h3>
-                <p>${(berkas.size/1024**3).toFixed(2)} GB</p>
-                <div class="tag-id">ID TMDB: ${tmdbId}</div>
+                <h3>${film.namaFile.replace(/\.mp4$/,"")}</h3>
+                <p>ID TMDB tidak ditemukan</p>
               </div>
-            `;
-          }
-
-          wadah.appendChild(kartu);
+            </div>
+          `);
         }
-
-        if (!adaYangDitampilkan) {
-          wadah.innerHTML = `<p class="loading kosong">Tidak ada berkas dengan format: <code>ID_TMDB Judul.mp4</code></p>`;
-        }
-
-      } catch (err) {
-        wadah.innerHTML = `<p class="loading error">❌ Gagal: ${err.message}<br>Periksa koneksi atau coba buka lewat berkas lokal</p>`;
       }
+
+      wadah.innerHTML = hasil.join("");
     }
 
+    // Klik film — nanti dihubungkan ke watch.html
+    function bukaFilm(tmdbId) {
+      alert(`Diklik ID: ${tmdbId}\nSiap dihubungkan ke watch.html`);
+      // window.location.href = `watch.html?tmdb=${tmdbId}`;
+    }
+
+    // Jalankan
     mulai();
   </script>
 </body>
