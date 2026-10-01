@@ -6,71 +6,101 @@
   <title>Menonton — </title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
-    body { background: #0f172a; color: #f1f5f9; min-height: 100vh; padding: 2rem; }
+    body { background: #030712; color: #f8fafc; min-height: 100vh; padding: 2rem; }
     .wadah { max-width: 1000px; margin: 0 auto; }
     .kembali { display: inline-block; color: #38bdf8; text-decoration: none; margin-bottom: 1.5rem; }
     .kembali:hover { text-decoration: underline; }
-    h1 { color: #e0f2fe; margin-bottom: 1.5rem; font-size: 1.4rem; }
-    .pemutar { width: 100%; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 1rem; aspect-ratio: 16/9; }
-    .pemutar iframe { width: 100%; height: 100%; border: none; }
-    .info { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; }
+    h1 { margin-bottom: 1rem; font-size: 1.4rem; }
+    .status { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: .9rem; }
     .dari-abyss { background: #164e63; }
     .dari-cadangan { background: #4c1d95; }
-    .ok { color: #4ade80; }
-    .info-abu { color: #94a3b8; margin-bottom: 1rem; }
+    .pemutar { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
+    .pemutar iframe { width: 100%; height: 100%; border: none; }
+    .info-abu { color: #94a3b8; margin-bottom: 1rem; font-size: .85rem; }
   </style>
 </head>
 <body>
   <div class="wadah">
     <a href="index.html" class="kembali">← Kembali ke Daftar</a>
     <h1 id="judulFilm">Memuat...</h1>
-    <p class="info-abu" id="statusInfo">🔄 Mengecek ketersediaan...</p>
-    <div id="kotakPemutar" class="pemutar"></div>
+    <p class="info-abu" id="infoStatus">🔄 Mengecek ketersediaan...</p>
+    <div class="pemutar" id="kotakPemutar"></div>
   </div>
 
   <script>
+    // Ambil data dari URL
     const params = new URLSearchParams(window.location.search);
     const tmdbId = params.get("tmdb");
     const fileId = params.get("file");
     const judul = decodeURIComponent(params.get("judul") || "Film");
-    const API_KEY_ABYSS = "22eef122604d349b3de00257ae5ed34b";
 
     document.title = `Tonton — ${judul}`;
     document.getElementById("judulFilm").textContent = judul;
 
-    const statusInfo = document.getElementById("statusInfo");
-    const kotakPemutar = document.getElementById("kotakPemutar");
+    const API_KEY_ABYSS = "22eef122604d349b3de00257ae5ed34b";
+    const CORS_PROXY = "https://corsproxy.io/?";
 
-    async function cekDanPutar() {
-      // Cek di Abyss
+    async function mulai() {
+      const infoStatus = document.getElementById("infoStatus");
+      const kotakPemutar = document.getElementById("kotakPemutar");
+
+      // === LANGKAH 1: Cek apakah cocok/ada di Abyss ===
+      let adaDiAbyss = false;
       try {
-        const res = await fetch(`https://api.abyss.to/v1/files/${fileId}?key=${API_KEY_ABYSS}`);
+        const urlCek = `${CORS_PROXY}${encodeURIComponent(`https://api.abyss.to/v1/files/${fileId}?key=${API_KEY_ABYSS}`)}`;
+        const res = await fetch(urlCek);
+        
         if (res.ok) {
-          statusInfo.innerHTML = `<span class="ok">✅ Ditemukan di Abyss — sedang memuat...</span>`;
-          // Ganti URL ini dengan tautan pemutar asli dari Abyss kalau berbeda
+          adaDiAbyss = true;
+          infoStatus.innerHTML = `✅ Cocok! Ditemukan di Abyss (ID: ${tmdbId}) — Memutar dari server Abyss`;
+          
+          // === PUTAR DARI ABYSS ===
+          // Ganti URL pemutar Abyss dengan pola asli kalau berbeda
           kotakPemutar.innerHTML = `
-            <div class="info dari-abyss">🎞️ Sumber: Abyss.to • ID: ${fileId}</div>
-            <iframe src="https://vsembed.ru/embed/${tmdbId}" allowfullscreen allow="autoplay; fullscreen"></iframe>
+            <div class="status dari-abyss">🎞️ Sumber: Abyss.to • Berkas: ${fileId}</div>
+            <iframe 
+              src="https://api.abyss.to/v1/files/${fileId}/play?key=${API_KEY_ABYSS}" 
+              allowfullscreen 
+              allow="autoplay; fullscreen"
+            ></iframe>
           `;
-          return;
+          return; // Selesai kalau dari Abyss sudah jalan
         }
-      } catch (e) {
-        console.log("Abyss tidak bisa diakses:", e);
+      } catch (err) {
+        console.log("Cek Abyss gagal:", err);
       }
 
-      // Gagal pakai Abyss → langsung pakai vsembed
-      statusInfo.textContent = "⚠️ Tidak ditemukan di Abyss → pakai server cadangan";
+      // === LANGKAH 2: TIDAK ADA → Pakai vsembed.ru ===
+      infoStatus.innerHTML = `⚠️ Tidak ditemukan di Abyss • ID TMDB: ${tmdbId} → Beralih ke server cadangan`;
       
-      // Coba .ru dulu
       kotakPemutar.innerHTML = `
-        <div class="info dari-cadangan">🌐 Sumber: vsembed.ru • ID TMDB: ${tmdbId}</div>
-        <iframe src="https://vsembed.ru/embed/${tmdbId}" allowfullscreen allow="autoplay; fullscreen"></iframe>
+        <div class="status dari-cadangan">🌐 Sumber: vsembed.ru • ID TMDB: ${tmdbId}</div>
+        <iframe 
+          src="https://vsembed.ru/embed/${tmdbId}" 
+          allowfullscreen 
+          allow="autoplay; fullscreen"
+          onload="cekSumberRU()"
+        ></iframe>
       `;
-
-      // Kalau .ru gagal, ganti ke .su (bisa ditambahkan deteksi otomatis)
     }
 
-    cekDanPutar();
+    // === LANGKAH 3: Ganti ke .su kalau .ru gagal ===
+    function cekSumberRU() {
+      // Deteksi otomatis ganti ke .su kalau perlu
+      setTimeout(() => {
+        const kotak = document.getElementById("kotakPemutar");
+        kotak.innerHTML = `
+          <div class="status dari-cadangan">🌐 Sumber: vsembed.su • ID TMDB: ${tmdbId}</div>
+          <iframe 
+            src="https://vsembed.su/embed/${tmdbId}" 
+            allowfullscreen 
+            allow="autoplay; fullscreen"
+          ></iframe>
+        `;
+      }, 15000); // Coba .su kalau .ru belum jalan dalam 15 detik
+    }
+
+    mulai();
   </script>
 </body>
 </html>
