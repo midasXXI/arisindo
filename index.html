@@ -17,6 +17,7 @@
     .info p { font-size: .8rem; color: #94a3b8; }
     .status { margin-top: .5rem; font-size: .75rem; color: #4ade80; }
     .loading { text-align: center; padding: 4rem; color: #94a3b8; grid-column: 1 / -1; }
+    .error { color: #f87171; }
   </style>
 </head>
 <body>
@@ -25,56 +26,75 @@
 
   <script>
     const API_KEY_TMDB = "c000d7b8b0f5ee16b98b6103009745d8";
+    const API_KEY_ABYSS = "22eef122604d349b3de00257ae5ed34b";
     const IMG_BASE = "https://image.tmdb.org/t/p/w342";
+    const CORS_PROXY = "https://corsproxy.io/?";
 
-    // === DAFTAR BERKAS DARI ABYSS — SESUAI GAMBAR KAMU ===
-    // Format: tmdbId, nama berkas, id berkas di Abyss
-    const DAFTAR_BERKAS = [
-      { tmdbId: "977942", nama: "The Uprising 2026.mp4", fileId: "ASdYY4dz-" },
-      { tmdbId: "282035", nama: "The Mummy 2017.mp4", fileId: "oHdbeTDe" },
-      { tmdbId: "1320330", nama: "Year 10 2024.mp4", fileId: "hCjFqsTIn7" }
-      // Tambah film baru di sini: { tmdbId: "xxx", nama: "Judul.mp4", fileId: "kode" }
-    ];
+    // Ambil semua berkas dari Abyss — TANPA DAFTAR MANUAL
+    async function ambilDariAbyss() {
+      const url = `${CORS_PROXY}${encodeURIComponent(`https://api.abyss.to/v1/resources?key=${API_KEY_ABYSS}`)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Abyss: ${res.status}`);
+      const data = await res.json();
+      return data.items || [];
+    }
 
-    async function muatSemua() {
+    // Ambil ID TMDB dari nama berkas
+    function ambilId(nama) {
+      const cocok = nama.match(/^(\d+)\s+/);
+      return cocok ? cocok[1] : null;
+    }
+
+    // Ambil info dari TMDB
+    async function ambilTMDB(tmdbId) {
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY_TMDB}&language=id-ID`);
+        return res.ok ? await res.json() : null;
+      } catch { return null; }
+    }
+
+    async function mulai() {
       const wadah = document.getElementById("grid");
-      wadah.innerHTML = `<p class="loading">🔄 Memuat poster...</p>`;
-      wadah.innerHTML = "";
+      wadah.innerHTML = `<p class="loading">🔄 Memuat dari Abyss...</p>`;
 
-      for (const berkas of DAFTAR_BERKAS) {
-        try {
-          const res = await fetch(
-            `https://api.themoviedb.org/3/movie/${berkas.tmdbId}?api_key=${API_KEY_TMDB}&language=id-ID`
-          );
-          if (!res.ok) continue;
-          const film = await res.json();
+      try {
+        const berkasList = await ambilDariAbyss();
+        wadah.innerHTML = "";
 
-          wadah.innerHTML += `
-            <div class="kartu" onclick="bukaFilm('${berkas.tmdbId}','${berkas.fileId}','${encodeURIComponent(film.title)}')">
-              <img 
-                src="${IMG_BASE}${film.poster_path}" 
-                alt="${film.title}" 
-                class="poster"
-                loading="lazy"
-              >
-              <div class="info">
-                <h3>${film.title}</h3>
-                <p>${film.release_date?.slice(0,4) || "-"}</p>
-                <p class="status">✅ Tersedia di Abyss</p>
-              </div>
-            </div>
-          `;
-        } catch (e) {
-          console.log(berkas.tmdbId, e);
+        if (!berkasList.length) {
+          wadah.innerHTML = `<p class="loading">Tidak ada berkas</p>`;
+          return;
         }
+
+        for (const berkas of berkasList) {
+          const tmdbId = ambilId(berkas.name);
+          if (!tmdbId) continue;
+
+          const film = await ambilTMDB(tmdbId);
+          
+          if (film) {
+            wadah.innerHTML += `
+              <div class="kartu" onclick="buka('${tmdbId}','${berkas.id}','${encodeURIComponent(film.title)}')">
+                <img src="${IMG_BASE}${film.poster_path}" alt="${film.title}" class="poster" loading="lazy">
+                <div class="info">
+                  <h3>${film.title}</h3>
+                  <p>${film.release_date?.slice(0,4) || "-"} • ${(berkas.size/1024**3).toFixed(2)} GB</p>
+                  <p class="status">✅ Tersedia</p>
+                </div>
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        wadah.innerHTML = `<p class="loading error">❌ ${err.message}<br>Buka berkas langsung di komputer kalau GitHub diblokir</p>`;
       }
     }
 
-    function bukaFilm(tmdbId, fileId, judul) {
+    function buka(tmdbId, fileId, judul) {
       window.location.href = `watch.html?tmdb=${tmdbId}&file=${fileId}&judul=${judul}`;
     }
 
-    muatSemua();
+    mulai();
   </script>
 </body>
 </html>
