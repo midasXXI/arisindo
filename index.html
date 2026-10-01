@@ -7,109 +7,51 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
     body { background: #030712; color: #f8fafc; padding: 2rem; max-width: 1200px; margin: 0 auto; }
-    h1 { text-align: center; color: #38bdf8; margin-bottom: 2rem; font-size: 1.8rem; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.8rem; }
-    .kartu { background: #0f172a; border-radius: 12px; overflow: hidden; transition: all .25s ease; cursor: pointer; border: 1px solid #1e293b; }
-    .kartu:hover { transform: translateY(-6px); border-color: #38bdf8; box-shadow: 0 12px 30px rgba(56,189,248,.15); }
-    .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #1e293b; }
+    h1 { text-align: center; color: #38bdf8; margin-bottom: 2rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+    .kartu { border-radius: 12px; overflow: hidden; background: #0f172a; }
+    .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
     .info { padding: 1rem; }
-    .info h3 { font-size: .95rem; margin-bottom: .4rem; color: #f0f9ff; line-height: 1.4; }
-    .info p { font-size: .8rem; color: #94a3b8; }
-    .skor { display: inline-flex; align-items: center; gap: .3rem; background: #1e293b; padding: .2rem .5rem; border-radius: 20px; font-size: .75rem; margin-top: .5rem; }
-    .bintang { color: #facc15; }
-    .loading { text-align: center; padding: 5rem 2rem; color: #94a3b8; grid-column: 1 / -1; }
-    .error { color: #f87171; }
+    .info h3 { font-size: 0.9rem; margin-bottom: 0.3rem; }
+    .info p { font-size: 0.8rem; color: #94a3b8; }
   </style>
 </head>
 <body>
-  <h1>🎬 Koleksi Film — TMDB</h1>
-  <div id="gridFilm" class="grid"></div>
+  <h1>🎬 Koleksi Film</h1>
+  <div class="grid" id="grid"></div>
 
   <script>
-    // === KUNCI TMDB KAMU SUDAH BENAR ===
-    const API_KEY_TMDB = "c000d7b8b0f5ee16b98b6103009745d8";
-    const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w342";
+    const API_KEY = "c000d7b8b0f5ee16b98b6103009745d8";
+    const IMG_BASE = "https://image.tmdb.org/t/p/w342";
 
-    // === DAFTAR ID FILM KAMU ===
-    // Nanti kalau sudah jalan, bisa diganti otomatis baca dari file daftar.json
-    const DAFTAR_FILM = [
-      { tmdbId: "977942", namaFile: "The Uprising 2026.mp4" },
-      { tmdbId: "282035", namaFile: "The Mummy 2017.mp4" },
-      { tmdbId: "1320330", namaFile: "Year 10 2024.mp4" }
-      // Tambah film di sini format: { tmdbId: "xxx", namaFile: "Judul.mp4" }
-    ];
+    // Daftar ID film kamu
+    const daftar = ["977942", "282035", "1320330"];
 
-    // === AMBIL INFO FILM DARI TMDB ===
-    async function ambilInfoTMDB(tmdbId) {
-      try {
-        const res = await fetch(
-          `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY_TMDB}&language=id-ID`
-        );
-        if (!res.ok) return null;
-        return await res.json();
-      } catch {
-        return null;
-      }
-    }
-
-    // === TAMPILKAN SEMUA ===
-    async function mulai() {
-      const wadah = document.getElementById("gridFilm");
-      wadah.innerHTML = `<p class="loading">🔄 Memuat poster dari TMDB...</p>`;
-
-      const hasil = [];
-
-      for (const film of DAFTAR_FILM) {
-        const dataTMDB = await ambilInfoTMDB(film.tmdbId);
-
-        if (dataTMDB) {
-          // ✅ Ditemukan — tampilkan poster ASLI dari TMDB
-          hasil.push(`
-            <div class="kartu" onclick="bukaFilm('${film.tmdbId}')">
-              <img 
-                src="${TMDB_IMG_BASE}${dataTMDB.poster_path}" 
-                alt="${dataTMDB.title}"
-                class="poster"
-                loading="lazy"
-                onerror="this.src='https://via.placeholder.com/300x450/0f172a/475569?text=${encodeURIComponent(dataTMDB.title)}'"
-              >
-              <div class="info">
-                <h3>${dataTMDB.title}</h3>
-                <p>${dataTMDB.release_date ? dataTMDB.release_date.slice(0,4) : "-"} • ${dataTMDB.runtime} menit</p>
-                <div class="skor">
-                  <span class="bintang">★</span>
-                  ${dataTMDB.vote_average?.toFixed(1) || "0.0"}
-                </div>
-              </div>
-            </div>
-          `);
-        } else {
-          // ❌ Tidak ketemu
-          hasil.push(`
+    async function muat() {
+      const wadah = document.getElementById("grid");
+      
+      for (const id of daftar) {
+        try {
+          const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=id-ID`);
+          if (!res.ok) continue;
+          const film = await res.json();
+          
+          wadah.innerHTML += `
             <div class="kartu">
-              <div style="width:100%;aspect-ratio:2/3;background:#1e293b;display:flex;align-items:center;justify-content:center;color:#64748b;text-align:center;padding:1rem;">
-                ID ${film.tmdbId}<br>Tidak ditemukan
-              </div>
+              <img src="${IMG_BASE}${film.poster_path}" alt="${film.title}" class="poster">
               <div class="info">
-                <h3>${film.namaFile.replace(/\.mp4$/,"")}</h3>
-                <p>ID TMDB tidak ditemukan</p>
+                <h3>${film.title}</h3>
+                <p>${film.release_date?.slice(0,4) || "-"}</p>
               </div>
             </div>
-          `);
+          `;
+        } catch (e) {
+          console.log(id, e);
         }
       }
-
-      wadah.innerHTML = hasil.join("");
     }
 
-    // Klik film — nanti dihubungkan ke watch.html
-    function bukaFilm(tmdbId) {
-      alert(`Diklik ID: ${tmdbId}\nSiap dihubungkan ke watch.html`);
-      // window.location.href = `watch.html?tmdb=${tmdbId}`;
-    }
-
-    // Jalankan
-    mulai();
+    muat();
   </script>
 </body>
 </html>
