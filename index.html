@@ -26,14 +26,18 @@
   <div id="gridFilm" class="grid"></div>
 
   <script>
-    // === KONFIG — SUDAH DIPASTIKAN BENAR ===
+    // === KUNCI SUDAH BENAR ===
     const API_KEY_ABYSS = "22eef122604d349b3de00257ae5ed34b";
     const API_KEY_TMDB = "c000d7b8b0f5ee16b98b6103009745d8";
     const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w342";
+    
+    // Perantara supaya gak diblokir CORS
+    const CORS_PROXY = "https://corsproxy.io/?";
 
     // === AMBIL DAFTAR DARI ABYSS ===
     async function ambilDaftarAbyss() {
-      const res = await fetch(`https://api.abyss.to/v1/resources?key=${API_KEY_ABYSS}`);
+      const url = `${CORS_PROXY}${encodeURIComponent(`https://api.abyss.to/v1/resources?key=${API_KEY_ABYSS}`)}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error(`Abyss Error: ${res.status}`);
       const data = await res.json();
       const petaFilm = {};
@@ -44,10 +48,9 @@
       return petaFilm;
     }
 
-    // === AMBIL INFO DARI TMDB — DIPERBAIKI ===
+    // === AMBIL INFO DARI TMDB ===
     async function ambilInfoTMDB(tmdbId) {
       try {
-        // Pakai cors-anywhere sebagai perantara untuk menghindari blokir
         const res = await fetch(
           `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY_TMDB}&language=id-ID`
         );
@@ -74,7 +77,6 @@
 
         wadah.innerHTML = "";
 
-        // Muat satu per satu biar gak berat
         for (const tmdbId of daftarId) {
           const berkas = petaAbyss[tmdbId];
           const film = await ambilInfoTMDB(tmdbId);
@@ -102,7 +104,7 @@
           wadah.appendChild(kartu);
         }
       } catch (err) {
-        wadah.innerHTML = `<p class="loading error">❌ Gagal muat: ${err.message}<br>Periksa apakah internet & API Abyss bisa diakses</p>`;
+        wadah.innerHTML = `<p class="loading error">❌ Gagal muat: ${err.message}<br>Silakan coba buka lewat peramban biasa atau cek koneksi</p>`;
       }
     }
 
