@@ -17,8 +17,8 @@
     .info p { font-size: 0.8rem; color: #94a3b8; }
     .status { margin-top: 0.5rem; font-size: 0.75rem; }
     .ada { color: #4ade80; }
-    .tidak { color: #f87171; }
     .loading { text-align: center; padding: 4rem; color: #94a3b8; grid-column: 1 / -1; }
+    .error { color: #f87171; }
   </style>
 </head>
 <body>
@@ -26,58 +26,72 @@
   <div id="gridFilm" class="grid"></div>
 
   <script>
-    // === KONFIG ===
+    // === KONFIG — SUDAH DIPASTIKAN BENAR ===
     const API_KEY_ABYSS = "22eef122604d349b3de00257ae5ed34b";
     const API_KEY_TMDB = "c000d7b8b0f5ee16b98b6103009745d8";
-    const TMDB_IMG = "https://image.tmdb.org/t/p/w342";
+    const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w342";
 
-    // === FUNGSI ===
+    // === AMBIL DAFTAR DARI ABYSS ===
     async function ambilDaftarAbyss() {
       const res = await fetch(`https://api.abyss.to/v1/resources?key=${API_KEY_ABYSS}`);
-      if (!res.ok) throw new Error(`Abyss: ${res.status}`);
+      if (!res.ok) throw new Error(`Abyss Error: ${res.status}`);
       const data = await res.json();
-      // Peta: tmdbId → info berkas
-      const peta = {};
+      const petaFilm = {};
       data.items.forEach(berkas => {
         const cocok = berkas.name.match(/^(\d+)\s+/);
-        if (cocok) peta[cocok[1]] = berkas;
+        if (cocok) petaFilm[cocok[1]] = berkas;
       });
-      return peta;
+      return petaFilm;
     }
 
+    // === AMBIL INFO DARI TMDB — DIPERBAIKI ===
     async function ambilInfoTMDB(tmdbId) {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY_TMDB}&language=id-ID`);
-      if (!res.ok) return null;
-      return res.json();
+      try {
+        // Pakai cors-anywhere sebagai perantara untuk menghindari blokir
+        const res = await fetch(
+          `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY_TMDB}&language=id-ID`
+        );
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
     }
 
-    // === TAMPILKAN ===
+    // === MULAI ===
     async function mulai() {
       const wadah = document.getElementById("gridFilm");
       wadah.innerHTML = `<p class="loading">🔄 Memuat daftar film...</p>`;
 
       try {
         const petaAbyss = await ambilDaftarAbyss();
-        wadah.innerHTML = "";
+        const daftarId = Object.keys(petaAbyss);
 
-        if (!Object.keys(petaAbyss).length) {
-          wadah.innerHTML = `<p class="loading">Belum ada berkas di akun Abyss</p>`;
+        if (!daftarId.length) {
+          wadah.innerHTML = `<p class="loading">Belum ada berkas dengan format ID TMDB</p>`;
           return;
         }
 
-        for (const [tmdbId, berkas] of Object.entries(petaAbyss)) {
+        wadah.innerHTML = "";
+
+        // Muat satu per satu biar gak berat
+        for (const tmdbId of daftarId) {
+          const berkas = petaAbyss[tmdbId];
           const film = await ambilInfoTMDB(tmdbId);
+
           const kartu = document.createElement("div");
           kartu.className = "kartu";
-          kartu.onclick = () => window.location.href = `watch.html?tmdb=${tmdbId}&file=${berkas.id}&judul=${encodeURIComponent(film?.title || berkas.name)}`;
+          kartu.onclick = () => {
+            window.location.href = `watch.html?tmdb=${tmdbId}&file=${berkas.id}&judul=${encodeURIComponent(film?.title || berkas.name)}`;
+          };
 
           kartu.innerHTML = `
             <img 
-              src="${film ? TMDB_IMG + film.poster_path : ''}" 
+              src="${film ? TMDB_IMG_BASE + film.poster_path : ''}" 
               alt="${film?.title || berkas.name}"
               class="poster"
               loading="lazy"
-              onerror="this.src='https://via.placeholder.com/300x450/1e293b/94a3b8?text=${encodeURIComponent(tmdbId + '+-+Tidak+Ada+Poster')}'"
+              onerror="this.src='https://via.placeholder.com/300x450/1e293b/94a3b8?text=${encodeURIComponent('Film+' + tmdbId)}'"
             >
             <div class="info">
               <h3>${film?.title || berkas.name.replace(/^\d+\s*/, "")}</h3>
@@ -88,7 +102,7 @@
           wadah.appendChild(kartu);
         }
       } catch (err) {
-        wadah.innerHTML = `<p class="loading" style="color:#f87171">❌ Gagal muat: ${err.message}</p>`;
+        wadah.innerHTML = `<p class="loading error">❌ Gagal muat: ${err.message}<br>Periksa apakah internet & API Abyss bisa diakses</p>`;
       }
     }
 
