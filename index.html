@@ -3,55 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Koleksi Film — TMDB</title>
+  <title>Koleksi Film — TMDB Otomatis</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
     body { background: #030712; color: #f8fafc; padding: 2rem; max-width: 1200px; margin: 0 auto; }
     h1 { text-align: center; color: #38bdf8; margin-bottom: 2rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
-    .kartu { border-radius: 12px; overflow: hidden; background: #0f172a; }
-    .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+    .kartu { border-radius: 12px; overflow: hidden; background: #0f172a; transition: transform .2s; cursor: pointer; }
+    .kartu:hover { transform: translateY(-5px); }
+    .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #1e293b; }
     .info { padding: 1rem; }
-    .info h3 { font-size: 0.9rem; margin-bottom: 0.3rem; }
-    .info p { font-size: 0.8rem; color: #94a3b8; }
+    .info h3 { font-size: .9rem; margin-bottom: .3rem; }
+    .info p { font-size: .8rem; color: #94a3b8; }
+    .skor { color: #facc15; font-size: .8rem; margin-top: .3rem; }
+    .loading { text-align: center; padding: 4rem; color: #94a3b8; grid-column: 1 / -1; }
   </style>
 </head>
 <body>
-  <h1>🎬 Koleksi Film</h1>
+  <h1>🎬 Film Populer — Langsung dari TMDB</h1>
   <div class="grid" id="grid"></div>
 
   <script>
+    // Kunci TMDB kamu — TIDAK DIUBAH
     const API_KEY = "c000d7b8b0f5ee16b98b6103009745d8";
     const IMG_BASE = "https://image.tmdb.org/t/p/w342";
 
-    // Daftar ID film kamu
-    const daftar = ["977942", "282035", "1320330"];
+    // AMBIL FILM POPULER OTOMATIS — TIDAK PERLU DAFTAR ID!
+    async function ambilFilmPopuler(halaman = 1) {
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=id-ID&page=${halaman}`
+      );
+      if (!res.ok) throw new Error(`Error: ${res.status}`);
+      return await res.json();
+    }
 
-    async function muat() {
+    async function tampilkan() {
       const wadah = document.getElementById("grid");
-      
-      for (const id of daftar) {
-        try {
-          const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=id-ID`);
-          if (!res.ok) continue;
-          const film = await res.json();
-          
+      wadah.innerHTML = `<p class="loading">🔄 Memuat film dari TMDB...</p>`;
+
+      try {
+        // Ambil film populer — OTOMATIS ratusan film muncul!
+        const data = await ambilFilmPopuler();
+        wadah.innerHTML = "";
+
+        data.results.forEach(film => {
           wadah.innerHTML += `
-            <div class="kartu">
-              <img src="${IMG_BASE}${film.poster_path}" alt="${film.title}" class="poster">
+            <div class="kartu" onclick="alert('ID: ${film.id} — ${film.title}')">
+              <img 
+                src="${IMG_BASE}${film.poster_path}" 
+                alt="${film.title}" 
+                class="poster"
+                loading="lazy"
+                onerror="this.src='https://via.placeholder.com/300x450/0f172a/475569?text=${film.id}'"
+              >
               <div class="info">
                 <h3>${film.title}</h3>
-                <p>${film.release_date?.slice(0,4) || "-"}</p>
+                <p>${film.release_date ? film.release_date.slice(0,4) : "-"}</p>
+                <p class="skor">★ ${film.vote_average?.toFixed(1)}</p>
               </div>
             </div>
           `;
-        } catch (e) {
-          console.log(id, e);
-        }
+        });
+      } catch (err) {
+        wadah.innerHTML = `<p class="loading" style="color:#f87171">❌ Gagal: ${err.message}</p>`;
       }
     }
 
-    muat();
+    tampilkan();
   </script>
 </body>
 </html>
