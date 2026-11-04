@@ -1,5 +1,15 @@
 [
 	{
+  		"tmdb_id": "1244523",
+ 		"title": "Beware Boiúna",
+  		"iframe": "https://player.abyssplayer.com/0hjnlsuCD",
+  		"sinopsis": "Misi medis di Amazon terhenti, Boiúna ular raksasa purba bangkit merebut wilayahnya.",
+  		"genre": ["Horor", "Aksi", "Thriller", "Petualangan"],
+  		"release_date": "2026-10-02",
+  		"country": "Amerika Serikat, Jerman, Kolombia"
+		},
+
+	{
   		"tmdb_id": "1507696",
   		"title": "Apocalypse Z: New World",
   		"iframe": "https://player.abyssplayer.com/TXLWMxd4B",
