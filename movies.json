@@ -1,5 +1,14 @@
 [
 	{
+  		"tmdb_id": "1263337",
+  		"title": "Heart of the Beast",
+  		"iframe": "https://player.abyssplayer.com/QfYO7qmK3",
+  		"sinopsis": "Pesawat jatuh di Alaska, mantan pasukan khusus & anjing tempurnya berjuang bertahan hidup di alam liar.",
+  		"genre": ["Aksi", "Petualangan", "Drama", "Thriller"],
+  		"release_date": "2026-09-25",
+  		"country": "Amerika Serikat"
+		},
+	{
   		"tmdb_id": "1633056",
   		"title": "All Wishes Come True! | 八仙！",
   		"iframe": "https://player.abyssplayer.com/LyqjuCF3C",
