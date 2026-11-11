@@ -1,5 +1,14 @@
 [
 	{
+  		"tmdb_id": "1368337",
+  		"title": "The Odyssey",
+  		"iframe": "https://player.abyssplayer.com/WO2PFgZVw",
+  		"sinopsis": "Odysseus berpulang ke Ithaca usai perang Troya, hadapi dewa, monster & penawar rindu puluhan tahun.",
+  		"genre": ["Petualangan", "Drama", "Fantasi"],
+  		"release_date": "2026-12-11",
+  		"country": "Inggris, Amerika Serikat"
+		},
+	{
   		"tmdb_id": "1263337",
   		"title": "Heart of the Beast",
   		"iframe": "https://player.abyssplayer.com/QfYO7qmK3",
