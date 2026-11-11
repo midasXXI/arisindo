@@ -1,5 +1,14 @@
 [
 	{
+  		"tmdb_id": "1423191",
+  		"title": "Resident Evil",
+  		"iframe": "https://player.abyssplayer.com/m_91KA-CD",
+  		"sinopsis": "Kurir medis terjebak di Raccoon City saat T-virus mewabah, berjuang bertahan hidup dari kiamat zombie.",
+  		"genre": ["Horor", "Fiksi Ilmiah", "Petualangan", "Aksi"],
+  		"release_date": "2026-09-16",
+  		"country": "Amerika Serikat, Jerman, Inggris"
+		},
+	{
   		"tmdb_id": "1437396",
   		"title": "Your Mother Your Mother Your Mother",
   		"iframe": "https://player.abyssplayer.com/6srHICqCos",
