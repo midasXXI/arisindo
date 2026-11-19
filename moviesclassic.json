@@ -1,5 +1,23 @@
 [
 	{
+  		"tmdb_id": "6479",
+  		"title": "I Am Legend",
+  		"iframe": "https://player.abyssplayer.com/tn3eQOtSN",
+  		"sinopsis": "Wabah virus musnahkan manusia, Robert Neville satu-satunya harapan penemuan obat.",
+  		"genre": ["Fiksi Ilmiah", "Aksi", "Horor", "Drama"],
+  		"release_date": "2007-12-14",
+  		"country": "Amerika Serikat"
+		},
+	{
+  		"tmdb_id": "940721",
+  		"title": "Godzilla Minus One",
+  		"iframe": "https://player.abyssplayer.com/QPoNZK20S",
+  		"sinopsis": "Pasca perang, mantan pilot hadapi Godzilla bangkit dari laut, rakyat Jepang bersatu.",
+  		"genre": ["Aksi", "Drama", "Fiksi Ilmiah", "Horor"],
+  		"release_date": "2023-11-03",
+  		"country": "Jepang"
+		},
+	{
 		"tmdb_id": 155,
 		"title": "The Dark Knight",
 		"iframe": "https://player.abyssplayer.com/f-jVEkT-e",
