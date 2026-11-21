@@ -1,5 +1,23 @@
 [
 	{
+  		"tmdb_id": "1235769",
+  		"title": "The Journey to Gyeongju",
+  		"iframe": "https://player.abyssplayer.com/QIAw-Nh1P",
+  		"sinopsis": "Ibu & tiga anak perempuan jalan ke Gyeongju, membalas dendam atas kematian anak bungsu mereka.",
+  		"genre": ["Drama", "Komedi Hitam", "Thriller", "Kejahatan"],
+  		"release_date": "2025-10-18",
+  		"country": "Korea Selatan"
+		},
+	{
+  		"tmdb_id": "1726",
+  		"title": "Iron Man",
+  		"iframe": "",
+  		"sinopsis": "Tony Stark diculik, bangun baju zirah cerdas untuk kabur lalu jadi pahlawan pelindung dunia.",
+  		"genre": ["Aksi", "Fiksi Ilmiah", "Petualangan"],
+  		"release_date": "2008-05-02",
+  		"country": "Amerika Serikat"
+		},
+	{
   		"tmdb_id": "354912",
   		"title": "Coco",
  		 "iframe": "https://player.abyssplayer.com/dZMTmk_e_",
