@@ -1,5 +1,23 @@
 [
 	{
+  		"tmdb_id": "1185344",
+  		"title": "The Beast",
+  		"iframe": "https://player.abyssplayer.com/eq7GWTnJj",
+  		"sinopsis": "Kudeta mengguncang AS, Presiden terjebak di dalam limusin lapis baja 'The Beast' bertahan hidup.",
+  		"genre": ["Aksi", "Thriller"],
+  		"release_date": "2026-10-09",
+ 		"country": "Inggris, Amerika Serikat, Spanyol"
+		},
+	{
+  		"tmdb_id": "1551025",
+  		"title": "Guarding Stars",
+  		"iframe": "https://player.abyssplayer.com/upJ6lN_Er",
+  		"sinopsis": "Pengawal wanita lindungi bintang film dari penguntit, pura-pura jadi pacar di ranch Montana.",
+  		"genre": ["Komedi", "Romansa"],
+  		"release_date": "2026-11-18",
+  		"country": "Amerika Serikat"
+		},
+	{
   		"tmdb_id": "1543469",
   		"title": "Heartland",
   		"iframe": "https://player.abyssplayer.com/HCDZysrrk",
