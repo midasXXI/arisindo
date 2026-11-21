@@ -1,5 +1,14 @@
 [
 	{
+  		"tmdb_id": "1131943",
+  		"title": "Madden",
+  		"iframe": "https://player.abyssplayer.com/k-ZvsJOTV",
+  		"sinopsis": "Biografi John Madden — pelatih legendaris NFL, komentator, & pencipta game Madden NFL.",
+  		"genre": ["Drama", "Sejarah", "Biografi", "Olahraga"],
+  		"release_date": "2026-11-18",
+  		"country": "Amerika Serikat"
+		},
+	{
   		"tmdb_id": "1185344",
   		"title": "The Beast",
   		"iframe": "https://player.abyssplayer.com/eq7GWTnJj",
