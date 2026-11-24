@@ -1,5 +1,41 @@
 [
 	{
+  		"tmdb_id": "13816",
+  		"title": "9 Songs",
+  		"iframe": "",
+  		"sinopsis": "Matt & Lisa bertemu konser, cinta musim panas terjalin lewat 9 lagu & keintiman mereka.",
+  		"genre": ["Drama", "Romansa", "Musik"],
+  		"release_date": "2004-10-05",
+  		"country": "Inggris"
+		},
+	{
+  		"tmdb_id": "509467",
+  		"title": "The Vanished",
+  		"iframe": "",
+  		"sinopsis": "Jenazah istri hilang dari kamar mayat. Suami klaim ia masih hidup, detektif ungkap kebenaran kelam.",
+  		"genre": ["Thriller", "Kejahatan", "Misteri"],
+  		"release_date": "2018-03-07",
+  		"country": "Korea Selatan"
+		},
+	{
+  		"tmdb_id": "101294",
+  		"title": "The Hunger Games: Catching Fire",
+  		"iframe": "",
+  		"sinopsis": "Katniss & Peeta jadi sasaran Capitol, kemenangan mereka memicu pemberontakan di 12 distrik Panem.",
+  		"genre": ["Aksi", "Sains Fiksi", "Petualangan", "Drama"],
+  		"release_date": "2013-11-22",
+  		"country": "Amerika Serikat"
+		},
+	{
+  		"tmdb_id": "10138",
+  		"title": "Iron Man 2",
+  		"iframe": "https://player.abyssplayer.com/3CuFJaIoF",
+  		"sinopsis": "Dunia tahu Tony Stark adalah Iron Man. Teknologinya diburu musuh & perlahan membunuhnya, ia hadapi ancaman baru.",
+  		"genre": ["Aksi", "Fiksi Ilmiah", "Petualangan"],
+  		"release_date": "2010-05-07",
+  		"country": "Amerika Serikat"
+		},
+	{
   		"tmdb_id": "615",
   		"title": "The Passion of the Christ",
   		"iframe": "https://player.abyssplayer.com/ULeYDqUtr",
