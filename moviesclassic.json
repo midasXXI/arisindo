@@ -1,5 +1,14 @@
 [
 	{
+  		"tmdb_id": "131631",
+  		"title": "The Hunger Games: Mockingjay - Part 1",
+  		"iframe": "https://player.abyssplayer.com/8KpuGChxl",
+ 		"sinopsis": "Katniss jadi simbol pemberontakan Distrik 13 melawan Capitol, Peeta ditawan, perang besar dimulai.",
+  		"genre": ["Fiksi Ilmiah", "Petualangan", "Thriller"],
+  		"release_date": "2014-11-21",
+  		"country": "Amerika Serikat"
+		},
+	{
   		"tmdb_id": "1504635",
   		"title": "Great White Waters",
   		"iframe": "https://player.abyssplayer.com/jqhkzLyJb",
