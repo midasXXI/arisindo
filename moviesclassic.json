@@ -1,5 +1,14 @@
 [
 	{
+  		"tmdb_id": "695721",
+  		"title": "The Hunger Games: The Ballad of Songbirds & Snakes",
+  		"iframe": "https://player.abyssplayer.com/hVbjSGBMx",
+  		"sinopsis": "Coriolanus Snow mentorui Lucy Gray, cinta & ambisi berbenturan — asal-usul tiran Panem dimulai.",
+  		"genre": ["Aksi", "Fiksi Ilmiah", "Petualangan", "Drama"],
+  		"release_date": "2023-11-17",
+  		"country": "Amerika Serikat, Jerman"
+		},
+	{
   		"tmdb_id": "131631",
   		"title": "The Hunger Games: Mockingjay - Part 1",
   		"iframe": "https://player.abyssplayer.com/8KpuGChxl",
