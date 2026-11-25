@@ -1,5 +1,14 @@
 [
 	{
+  		"tmdb_id": "1504635",
+  		"title": "Great White Waters",
+  		"iframe": "https://player.abyssplayer.com/jqhkzLyJb",
+  		"sinopsis": "Peneliti laut terdampar di perairan terbuka, berjuang bertahan hidup dari hiu putih raksasa yang mengintai setiap gerakannya.",
+  		"genre": ["Horor", "Thriller", "Petualangan"],
+  		"release_date": "2025-08-14",
+  		"country": "Inggris, Australia"
+		},
+	{
   		"tmdb_id": "27",
   		"title": "9 Songs",
   		"iframe": "https://player.abyssplayer.com/5iQ3Q6SLZ",
