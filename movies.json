@@ -1,5 +1,14 @@
 [
 	{
+  		"tmdb_id": "119580",
+  		"title": "Wicker",
+  		"iframe": "https://player.abyssplayer.com/3elXHdymG",
+  		"sinopsis": "Nelayan tua dibikin suami dari rotan oleh perajin keranjang, desa gempar cemburu tapi cinta tumbuh.",
+  		"genre": ["Drama", "Fantasi", "Romansa", "Komedi"],
+  		"release_date": "2026-10-23",
+  		"country": "Amerika Serikat, Inggris"
+		},
+	{
   		"tmdb_id": "1615596",
   		"title": "Best Pancakes in the County",
   		"iframe": "https://player.abyssplayer.com/cfZ-qzq9R",
