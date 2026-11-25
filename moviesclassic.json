@@ -1,5 +1,14 @@
 [
 	{
+  		"tmdb_id": "70160",
+  		"title": "The Hunger Games",
+  		"iframe": "",
+  		"sinopsis": "Katniss Everdeen sukarela gantikan adiknya ikut ajang mematikan, bertahan hidup di arena sambil lawan Capitol.",
+  		"genre": ["Aksi", "Fiksi Ilmiah", "Petualangan", "Thriller"],
+  		"release_date": "2012-03-23",
+  		"country": "Amerika Serikat"
+		},
+	{
   		"tmdb_id": "695721",
   		"title": "The Hunger Games: The Ballad of Songbirds & Snakes",
   		"iframe": "https://player.abyssplayer.com/hVbjSGBMx",
