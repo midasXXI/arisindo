@@ -1,5 +1,23 @@
 [
 	{
+  		"tmdb_id": "1611767",
+  		"title": "Clashing Through the Snow",
+  		"iframe": "https://player.abyssplayer.com/ZH_c52H2c",
+  		"sinopsis": "Dua rival berebut jabatan sama, penerbangan batal — terjebak mobil sepanjang perjalanan, benci berubah cinta.",
+  		"genre": ["Komedi", "Romansa"],
+  		"release_date": "2026-11-23",
+  		"country": "Amerika Serikat"
+		},
+	{
+  		"tmdb_id": "1568060",
+  		"title": "Perfect Liars",
+  		"iframe": "https://player.abyssplayer.com/JJaqRkYCe",
+  		"sinopsis": "Jude menyamar di universitas elit, selidiki kematian kakaknya — balas dendam berubah jadi jebakan cinta & kebohongan.",
+  		"genre": ["Thriller", "Drama", "Romansa"],
+  		"release_date": "2026-11-20",
+  		"country": "Spanyol"
+		},
+	{
   		"tmdb_id": "1195803",
   		"title": "Wicker",
   		"iframe": "https://player.abyssplayer.com/3elXHdymG",
