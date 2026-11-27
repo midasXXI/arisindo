@@ -1,5 +1,23 @@
 [
 	{
+  		"tmdb_id": "733317",
+  		"title": "Monsters of Man",
+  		"iframe": "",
+  		"sinopsis": "Perusahaan robotik uji coba robot tempur di Segitiga Emas, enam dokter jadi saksi & diburu mesin pembunuh yang lepas kendali.",
+  		"genre": ["Fiksi Ilmiah", "Aksi", "Thriller"],
+  		"release_date": "2020-11-19",
+  		"country": "Australia, Kamboja, Amerika Serikat"
+		},
+	{
+  		"tmdb_id": "238428",
+  		"title": "The Great Wall",
+  		"iframe": "",
+  		"sinopsis": "Penjelajah asing cari bubuk mesiu di Tiongkok, temukan rahasia Tembok Besar — lawan monster Tao Tieh yang kelaparan.",
+  		"genre": ["Aksi", "Petualangan", "Fiksi Ilmiah", "Fantasi"],
+  		"release_date": "2016-12-16",
+  		"country": "Tiongkok, Amerika Serikat"
+		},
+	{
   		"tmdb_id": "70160",
   		"title": "The Hunger Games",
   		"iframe": "https://player.abyssplayer.com/HkAPjvsKV",
